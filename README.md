@@ -1,10 +1,10 @@
-# Smart-Pay RFID Wallet System
+# NexaPay RFID Mobile Wallet System
 
-A complete RFID-based digital wallet system with real-time web dashboard, atomic database transactions, and edge device integration via MQTT.
+A complete RFID-based digital wallet system with React Native mobile application, atomic database transactions, and IoT device integration via MQTT.
 
 ## 🎯 System Overview
 
-Smart-Pay enables contactless payments and top-ups using RFID cards with a modern web dashboard supporting both Admin (top-up) and Cashier (payment) interfaces.
+NexaPay enables contactless payments and top-ups using RFID cards with a modern mobile application supporting both Agent (top-up) and Salesperson (payment) interfaces.
 
 ## 📋 Features Implemented
 
@@ -21,11 +21,12 @@ Smart-Pay enables contactless payments and top-ups using RFID cards with a moder
 - **GET /products**: Retrieve available products
 - **GET /transactions/:uid**: View transaction history
 
-### 3. Dashboard Features
-- **Dual Interface**: Admin (top-up) & Cashier (payment)
-- **Real-time WebSocket**: No polling - instant updates
-- **Auto-Detection**: RFID cards detected automatically
-- **Atomic Transactions**: MongoDB sessions ensure data integrity
+### 3. Mobile Application Features (React Native + Expo)
+- **Dual Interface**: Agent (top-up) & Salesperson (payment)
+- **Real-time Updates**: Instant balance and transaction updates
+- **Auto-Detection**: RFID cards detected automatically via backend
+- **Cross-Platform**: iOS and Android support
+- **Modern UI**: Native mobile experience with Tailwind CSS
 
 ### 4. MongoDB Atlas Integration
 - **Atomic Operations**: Wallet update + transaction saved together
@@ -43,16 +44,21 @@ Smart-Pay enables contactless payments and top-ups using RFID cards with a moder
 ```bash
 cd backend
 npm install
-NODE CONFIGURATION:
-- Update MONGODB_URI in database.js
-- Update MQTT_BROKER in server.js
+# NODE CONFIGURATION:
+# - Update MONGODB_URI in database.js
+# - Update MQTT_BROKER in server.js
 npm run dev
 # Runs on http://localhost:9210
 ```
 
-### Frontend
-- Open http://localhost:9210
-- Switch between Admin and Cashier modes
+### Mobile App (React Native + Expo)
+```bash
+cd frontend
+npm install
+# Start the development server
+npx expo start
+# Scan QR code with Expo Go app or run on simulator
+```
 
 ### ESP8266 Firmware
 1. Use firmware/iot_rfid_project/iot_rfid_project_v2.ino
@@ -92,33 +98,69 @@ npm run dev
 
 ✅ Atomic transactions (MongoDB sessions)  
 ✅ Double-spend prevention  
-✅ Real-time WebSocket (no polling)  
+✅ Real-time mobile updates  
+✅ Cross-platform mobile app (iOS/Android)  
 ✅ Clean architecture separation  
 ✅ Team isolation (MQTT namespacing)  
 ✅ Immutable audit trail  
-✅ Dual dashboard roles  
+✅ Dual mobile interfaces (Agent/Salesperson)  
+✅ Modern React Native UI  
 
 ## 🛠 Project Structure
 
 ```
-Smart-pay/
+NexaPay/
 ├── backend/
 │   ├── database.js
 │   ├── server.js
 │   └── package.json
 ├── firmware/
 │   └── iot_rfid_project/
-│       └── iot_rfid_project_v2.ino
+│       └── iot_rfid_project_v2/
+│           └── iot_rfid_project_v2.ino
 ├── frontend/
-│   ├── index.html
-│   ├── app.js
-│   └── style.css
+│   ├── app/
+│   │   ├── (main)/
+│   │   │   ├── agent/
+│   │   │   └── salesperson/
+│   │   ├── login.tsx
+│   │   └── signup.tsx
+│   ├── components/
+│   ├── services/
+│   ├── contexts/
+│   └── package.json
 └── README.md
 ```
 
+## 📱 Mobile App Features
+
+### Agent Interface
+- **Profile Management**: Edit profile and settings
+- **Top-up Operations**: Add balance to RFID cards
+- **Transaction History**: View all top-up transactions
+- **Notifications**: Real-time alerts and updates
+- **Help Center**: Support and documentation
+
+### Salesperson Interface
+- **Product Catalog**: Browse available products
+- **Payment Processing**: Process RFID card payments
+- **Sales History**: Track payment transactions
+- **Dashboard**: Sales analytics and overview
+- **Profile Settings**: Manage account information
+
+## 🔧 Technology Stack
+
+- **Mobile**: React Native + Expo
+- **Styling**: NativeWind (Tailwind CSS for React Native)
+- **Navigation**: Expo Router
+- **Backend**: Node.js + Express
+- **Database**: MongoDB Atlas
+- **IoT**: ESP8266 + RC522 RFID
+- **Communication**: MQTT Protocol
+
 ## 📝 Team ID: iot_shield_2026
 
-**Status**: Production Ready | **Updated**: February 2026
+**Status**: Production Ready | **Updated**: March 2026
 
-### Live url
+### Backend API
 **http://157.173.101.159:9210/**
