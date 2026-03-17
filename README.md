@@ -158,7 +158,7 @@ NexaPay/
 - **IoT**: ESP8266 + RC522 RFID
 - **Communication**: MQTT Protocol
 
-## 📝 Team ID: iot_shield_2026
+## 📝 Team ID: team_I
 
 **Status**: Production Ready | **Updated**: March 2026
 
