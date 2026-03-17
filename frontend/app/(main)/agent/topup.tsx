@@ -107,16 +107,20 @@ export default function AgentTopupScreen() {
       return;
     }
 
-    if (!cardUID) {
-      Alert.alert('No Card Selected', 'Please select a card or add a new one');
+    // Use detected card UID if available, otherwise use selected card
+    const targetCardUID = detectedCard ? detectedCard.uid : cardUID;
+    const currentBalance = detectedCard ? detectedCard.deviceBalance : (selectedCard ? selectedCard.balance : 0);
+
+    if (!targetCardUID) {
+      Alert.alert('No Card Selected', 'Please place an RFID card on the reader or select a card');
       return;
     }
 
     setIsProcessing(true);
     try {
-      console.log('💰 Processing top-up:', { cardUID, amount });
+      console.log('💰 Processing top-up:', { cardUID: targetCardUID, amount, currentBalance });
       
-      const response = await apiService.topup(cardUID, parseFloat(amount));
+      const response = await apiService.topup(targetCardUID, parseFloat(amount));
       
       if (response.success) {
         Alert.alert(
@@ -243,10 +247,28 @@ export default function AgentTopupScreen() {
 
         {/* card-details-card */}
         <View 
-          style={{ height: 280, backgroundColor: primaryNavy, borderRadius: 16, padding: 30 }} 
+          style={{ 
+            height: 280, 
+            backgroundColor: detectedCard ? primaryNavy : (selectedCard ? primaryNavy : '#64748b'), 
+            borderRadius: 16, 
+            padding: 30 
+          }} 
           className="shadow-2xl shadow-blue-900/20 border border-blue-100 relative overflow-hidden mb-8"
         >
           <View style={{ backgroundColor: 'rgba(255,255,255,0.1)', width: 200, height: 200, borderRadius: 100, position: 'absolute', top: -100, right: -100 }} />
+          
+          {/* Live indicator for detected cards */}
+          {detectedCard && (
+            <View className="absolute top-4 left-4">
+              <View className="bg-green-500 px-2 py-1 rounded-full flex-row items-center">
+                <View className="w-2 h-2 bg-white rounded-full mr-1" />
+                <Text style={{ color: 'white', fontFamily: 'Poppins_600SemiBold' }} className="text-xs">
+                  LIVE
+                </Text>
+              </View>
+            </View>
+          )}
+          
           <View className="flex-row justify-between items-start mb-6">
             <View style={{ backgroundColor: '#FFD700', width: 50, height: 38, borderRadius: 8, opacity: 0.9, position: 'relative', overflow: 'hidden' }}>
                <View className="absolute inset-0 border border-black/10 opacity-20" />
@@ -264,7 +286,7 @@ export default function AgentTopupScreen() {
             color: 'white',
             fontFamily: 'Poppins_900Black'
           }} className="text-2xl tracking-[4px] mb-8 opacity-80">
-            **** **** **** ****
+            {(detectedCard || selectedCard) ? '**** **** **** ****' : '---- ---- ---- ----'}
           </Text>
           <View className="flex-row justify-between items-end mt-auto">
             <View>
@@ -276,8 +298,18 @@ export default function AgentTopupScreen() {
                 <Text style={{ 
                   color: 'white',
                   fontFamily: 'Poppins_900Black'
-                }} className="text-lg tracking-tighter">{cardUID || 'No card selected'}</Text>
+                }} className="text-lg tracking-tighter">
+                  {detectedCard ? detectedCard.uid : (selectedCard ? selectedCard.cardUid : 'No card selected')}
+                </Text>
               </View>
+              {detectedCard && (
+                <Text style={{ 
+                  color: 'rgba(34, 197, 94, 0.8)',
+                  fontFamily: 'Poppins_500Medium'
+                }} className="text-xs mt-1">
+                  Detected: {new Date(detectedCard.timestamp).toLocaleTimeString()}
+                </Text>
+              )}
             </View>
             <View className="items-end">
               <Text style={{ 
@@ -287,12 +319,83 @@ export default function AgentTopupScreen() {
               <Text style={{ 
                 color: 'white',
                 fontFamily: 'Poppins_900Black'
-              }} className="text-2xl">${selectedCard ? selectedCard.balance.toFixed(2) : '0.00'}</Text>
+              }} className="text-2xl">
+                ${detectedCard ? detectedCard.deviceBalance.toFixed(2) : (selectedCard ? selectedCard.balance.toFixed(2) : '0.00')}
+              </Text>
+              {detectedCard && (
+                <Text style={{ 
+                  color: 'rgba(34, 197, 94, 0.8)',
+                  fontFamily: 'Poppins_500Medium'
+                }} className="text-xs">
+                  Live Balance
+                </Text>
+              )}
             </View>
           </View>
         </View>
 
-        {/* Card Selection */}
+        {/* RFID Card Detection Section */}
+        <View className="mb-6">
+          <Text style={{ 
+            color: '#64748b',
+            fontFamily: 'Poppins_800ExtraBold'
+          }} className="text-sm uppercase tracking-widest mb-3 ml-1">RFID Card Detection</Text>
+          
+          {detectedCard ? (
+            <View className="bg-green-50 border border-green-200 rounded-2xl p-4 mb-4">
+              <View className="flex-row items-center justify-between mb-3">
+                <View className="flex-row items-center">
+                  <View className="bg-green-500 w-3 h-3 rounded-full mr-2" />
+                  <Text style={{ 
+                    color: '#16a34a',
+                    fontFamily: 'Poppins_700Bold'
+                  }} className="text-sm">Card Detected</Text>
+                </View>
+                <Pressable 
+                  onPress={() => {
+                    setDetectedCard(null);
+                    setCardUID('');
+                  }}
+                  className="bg-slate-100 px-3 py-1 rounded-lg"
+                >
+                  <Text style={{ 
+                    color: '#64748b',
+                    fontFamily: 'Poppins_500Medium'
+                  }} className="text-xs">Clear</Text>
+                </Pressable>
+              </View>
+              <View className="flex-row justify-between items-center">
+                <View>
+                  <Text style={{ 
+                    color: '#15803d',
+                    fontFamily: 'Poppins_600SemiBold'
+                  }} className="text-base">UID: {detectedCard.uid}</Text>
+                  <Text style={{ 
+                    color: '#16a34a',
+                    fontFamily: 'Poppins_500Medium'
+                  }} className="text-sm">Current Balance: ${detectedCard.deviceBalance.toFixed(2)}</Text>
+                </View>
+                <View className="bg-green-100 p-2 rounded-xl">
+                  <CheckCircle2 size={20} color="#16a34a" />
+                </View>
+              </View>
+            </View>
+          ) : (
+            <View className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-4">
+              <View className="flex-row items-center">
+                <View className="bg-slate-200 w-3 h-3 rounded-full mr-2" />
+                <Text style={{ 
+                  color: '#64748b',
+                  fontFamily: 'Poppins_600SemiBold'
+                }} className="text-sm">Place RFID card on reader to detect</Text>
+              </View>
+              <Text style={{ 
+                color: '#94a3b8',
+                fontFamily: 'Poppins_500Medium'
+              }} className="text-xs mt-2">Card will be automatically detected when placed on the RFID reader</Text>
+            </View>
+          )}
+        </View>
         {userCards.length > 0 && (
           <View className="mb-6">
             <Text style={{ 
