@@ -320,67 +320,61 @@ export default function AgentTopupScreen() {
           </View>
         </View>
 
-        {/* RFID Card Detection Section */}
+        {/* Quick Actions */}
         <View className="mb-6">
           <Text style={{ 
             color: '#64748b',
             fontFamily: 'Poppins_800ExtraBold'
-          }} className="text-sm uppercase tracking-widest mb-3 ml-1">RFID Card Detection</Text>
+          }} className="text-sm uppercase tracking-widest mb-3 ml-1">Quick Actions</Text>
           
-          {detectedCard ? (
-            <View className="bg-green-50 border border-green-200 rounded-2xl p-4 mb-4">
-              <View className="flex-row items-center justify-between mb-3">
-                <View className="flex-row items-center">
-                  <View className="bg-green-500 w-3 h-3 rounded-full mr-2" />
-                  <Text style={{ 
-                    color: '#16a34a',
-                    fontFamily: 'Poppins_700Bold'
-                  }} className="text-sm">Card Detected</Text>
-                </View>
-                <Pressable 
-                  onPress={() => {
-                    setDetectedCard(null);
-                    setCardUID('');
-                  }}
-                  className="bg-slate-100 px-3 py-1 rounded-lg"
-                >
-                  <Text style={{ 
-                    color: '#64748b',
-                    fontFamily: 'Poppins_500Medium'
-                  }} className="text-xs">Clear</Text>
-                </Pressable>
-              </View>
-              <View className="flex-row justify-between items-center">
-                <View>
-                  <Text style={{ 
-                    color: '#15803d',
-                    fontFamily: 'Poppins_600SemiBold'
-                  }} className="text-base">UID: {detectedCard.uid}</Text>
-                  <Text style={{ 
-                    color: '#16a34a',
-                    fontFamily: 'Poppins_500Medium'
-                  }} className="text-sm">Current Balance: ${detectedCard.deviceBalance.toFixed(2)}</Text>
-                </View>
-                <View className="bg-green-100 p-2 rounded-xl">
-                  <CheckCircle2 size={20} color="#16a34a" />
-                </View>
-              </View>
-            </View>
-          ) : (
-            <View className="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-4">
-              <View className="flex-row items-center">
-                <View className="bg-slate-200 w-3 h-3 rounded-full mr-2" />
+          <View className="flex-row justify-between">
+            {detectedCard && (
+              <Pressable 
+                onPress={() => {
+                  setDetectedCard(null);
+                  setCardUID('');
+                }}
+                className="flex-1 bg-slate-100 border border-slate-200 rounded-xl p-4 mr-2 items-center"
+              >
                 <Text style={{ 
                   color: '#64748b',
                   fontFamily: 'Poppins_600SemiBold'
-                }} className="text-sm">Place RFID card on reader to detect</Text>
-              </View>
+                }} className="text-sm">Clear Card</Text>
+                <Text style={{ 
+                  color: '#94a3b8',
+                  fontFamily: 'Poppins_400Regular'
+                }} className="text-xs mt-1">Remove detected card</Text>
+              </Pressable>
+            )}
+            
+            <Pressable 
+              onPress={() => router.push('/(main)/agent/transactions')}
+              className={`${detectedCard ? 'flex-1 ml-2' : 'flex-1 mr-2'} bg-blue-50 border border-blue-200 rounded-xl p-4 items-center`}
+            >
               <Text style={{ 
-                color: '#94a3b8',
-                fontFamily: 'Poppins_500Medium'
-              }} className="text-xs mt-2">Card will be automatically detected when placed on the RFID reader</Text>
-            </View>
-          )}
+                color: primaryNavy,
+                fontFamily: 'Poppins_600SemiBold'
+              }} className="text-sm">View History</Text>
+              <Text style={{ 
+                color: '#64748b',
+                fontFamily: 'Poppins_400Regular'
+              }} className="text-xs mt-1">Transaction history</Text>
+            </Pressable>
+
+            <Pressable 
+              onPress={() => router.push('/(main)/agent/scan')}
+              className={`${detectedCard ? 'flex-1 ml-2' : 'flex-1'} bg-green-50 border border-green-200 rounded-xl p-4 items-center`}
+            >
+              <Text style={{ 
+                color: '#16a34a',
+                fontFamily: 'Poppins_600SemiBold'
+              }} className="text-sm">Scan Card</Text>
+              <Text style={{ 
+                color: '#64748b',
+                fontFamily: 'Poppins_400Regular'
+              }} className="text-xs mt-1">Go to scanner</Text>
+            </Pressable>
+          </View>
         </View>
         
         {/* Enhanced Amount Input Section */}
