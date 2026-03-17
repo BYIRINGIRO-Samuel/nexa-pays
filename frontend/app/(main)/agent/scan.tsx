@@ -443,61 +443,6 @@ export default function AgentScanScreen() {
         )}
         
         <View className="px-6 mt-10">
-          {/* Connection Status */}
-          <View className="mb-6">
-            <View className="flex-row items-center justify-between">
-              <Text style={{ color: primaryNavy, fontFamily: 'Poppins_800ExtraBold' }} className="text-xl">RFID System Status</Text>
-              <View className={`flex-row items-center px-3 py-1 rounded-full ${isWebSocketConnected ? 'bg-green-100' : 'bg-red-100'}`}>
-                <View className={`w-2 h-2 rounded-full mr-2 ${isWebSocketConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-                <Text style={{ 
-                  color: isWebSocketConnected ? '#16a34a' : '#dc2626',
-                  fontFamily: 'Poppins_600SemiBold'
-                }} className="text-xs">
-                  {isWebSocketConnected ? 'Connected' : 'Disconnected'}
-                </Text>
-              </View>
-            </View>
-            
-            {!isWebSocketConnected && (
-              <View className="mt-3 bg-red-50 p-4 rounded-xl border border-red-200">
-                <Text style={{ 
-                  color: '#dc2626',
-                  fontFamily: 'Poppins_600SemiBold'
-                }} className="text-sm mb-1">
-                  RFID System Offline
-                </Text>
-                <Text style={{ 
-                  color: '#b91c1c',
-                  fontFamily: 'Poppins_400Regular'
-                }} className="text-xs">
-                  Cannot detect RFID cards. Please check your connection and ensure the backend server is running.
-                </Text>
-              </View>
-            )}
-
-            {lastScannedCard && (
-              <View className="mt-3 bg-blue-50 p-4 rounded-xl border border-blue-200">
-                <Text style={{ 
-                  color: '#1d4ed8',
-                  fontFamily: 'Poppins_600SemiBold'
-                }} className="text-sm mb-1">
-                  Last Detected Card
-                </Text>
-                <Text style={{ 
-                  color: '#1e40af',
-                  fontFamily: 'Poppins_500Medium'
-                }} className="text-xs">
-                  UID: {lastScannedCard.uid} • Balance: ${lastScannedCard.deviceBalance}
-                </Text>
-                <Text style={{ 
-                  color: '#64748b',
-                  fontFamily: 'Poppins_400Regular'
-                }} className="text-xs mt-1">
-                  Detected: {new Date(lastScannedCard.timestamp).toLocaleTimeString()}
-                </Text>
-              </View>
-            )}
-          </View>
 
           {/* User Cards Section */}
           {userCards.length > 0 && (
