@@ -16,6 +16,7 @@ import { AgentTopbar } from '../../../components/AgentTopbar';
 import { AgentBottomNav } from '../../../components/AgentBottomNav';
 import { StorageService } from '../../../services/storage';
 import { User, apiService } from '../../../services/api';
+import { webSocketService, CardScannedEvent } from '../../../services/websocket';
 import { Alert } from 'react-native';
 
 export default function AgentScanScreen() {
@@ -28,6 +29,8 @@ export default function AgentScanScreen() {
   const [notificationCount, setNotificationCount] = useState(0);
   const [userCards, setUserCards] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isWebSocketConnected, setIsWebSocketConnected] = useState(false);
+  const [lastScannedCard, setLastScannedCard] = useState<CardScannedEvent | null>(null);
 
   // Currency conversion rates (in a real app, these would come from an API)
   const currencyRates = {
@@ -73,6 +76,58 @@ export default function AgentScanScreen() {
     };
     loadUserData();
   }, []);
+
+  // WebSocket connection and RFID card detection
+  useEffect(() => {
+    const connectWebSocket = async () => {
+      try {
+        console.log('🔌 Attempting WebSocket connection...');
+        const connected = await webSocketService.connect();
+        setIsWebSocketConnected(connected);
+        
+        if (connected) {
+          console.log('✅ WebSocket connected successfully');
+          
+          // Listen for real RFID card detections
+          const handleCardScanned = (data: CardScannedEvent) => {
+            console.log('📱 Real RFID card detected:', data);
+            setLastScannedCard(data);
+            
+            // Auto-stop scanning when card is detected
+            if (isScanning) {
+              setIsScanning(false);
+              
+              // Update scan result with real card data
+              setScanResult({
+                id: data.uid,
+                name: currentUser?.username || 'Card Holder',
+                balance: data.deviceBalance
+              });
+            }
+          };
+
+          webSocketService.on('card-scanned', handleCardScanned);
+
+          // Cleanup function
+          return () => {
+            webSocketService.off('card-scanned', handleCardScanned);
+          };
+        } else {
+          console.log('❌ Failed to connect to WebSocket');
+        }
+      } catch (error) {
+        console.error('WebSocket connection error:', error);
+        setIsWebSocketConnected(false);
+      }
+    };
+
+    connectWebSocket();
+
+    // Cleanup on unmount
+    return () => {
+      webSocketService.disconnect();
+    };
+  }, [isScanning, currentUser]);
 
   // Convert balance to selected currency
   const convertCurrency = (amountInUSD: number): string => {
@@ -182,45 +237,41 @@ export default function AgentScanScreen() {
   const handleStartScan = async () => {
     setIsScanning(true);
     setScanResult(null);
+    setLastScannedCard(null);
     
     try {
-      // Check if user has any cards
-      if (userCards.length === 0) {
+      // Check WebSocket connection
+      if (!isWebSocketConnected) {
         setIsScanning(false);
         Alert.alert(
-          'No Cards Found', 
-          'You don\'t have any cards assigned to your account. Please contact an administrator to assign a card.',
+          'Connection Error', 
+          'Not connected to RFID system. Please check your connection and try again.',
           [{ text: 'OK' }]
         );
         return;
       }
 
-      // For demo purposes, we'll use the first card from user's cards
-      // In a real RFID implementation, this would detect the actual card being scanned
-      const cardToScan = userCards[0];
+      console.log('🔍 Starting real RFID scan - waiting for card detection...');
       
-      console.log('🔍 Scanning RFID card:', cardToScan.cardUid);
-      
-      // Get fresh balance from backend
-      const balanceResponse = await apiService.getBalance(cardToScan.cardUid);
-      
-      if (balanceResponse.success) {
-        setTimeout(() => {
+      // Set a timeout for scanning (30 seconds)
+      const scanTimeout = setTimeout(() => {
+        if (isScanning) {
           setIsScanning(false);
-          setScanResult({
-            id: cardToScan.cardUid,
-            name: currentUser?.username || 'Card Holder',
-            balance: balanceResponse.balance
-          });
-          console.log('✅ Card scanned successfully:', balanceResponse);
-        }, 2500);
-      } else {
-        throw new Error('Failed to get card balance');
-      }
+          Alert.alert(
+            'Scan Timeout', 
+            'No RFID card detected. Please place a card near the reader and try again.',
+            [{ text: 'OK' }]
+          );
+        }
+      }, 30000);
+
+      // The actual card detection will be handled by the WebSocket listener
+      // When a card is detected, the WebSocket event will automatically stop scanning
+      
     } catch (error) {
       console.error('❌ Scan error:', error);
       setIsScanning(false);
-      Alert.alert('Scan Error', 'Failed to read card. Please try again.');
+      Alert.alert('Scan Error', 'Failed to start RFID scan. Please try again.');
     }
   };
 
@@ -297,6 +348,62 @@ export default function AgentScanScreen() {
         <NexaCard />
         
         <View className="px-6 mt-10">
+          {/* Connection Status */}
+          <View className="mb-6">
+            <View className="flex-row items-center justify-between">
+              <Text style={{ color: primaryNavy, fontFamily: 'Poppins_800ExtraBold' }} className="text-xl">RFID System Status</Text>
+              <View className={`flex-row items-center px-3 py-1 rounded-full ${isWebSocketConnected ? 'bg-green-100' : 'bg-red-100'}`}>
+                <View className={`w-2 h-2 rounded-full mr-2 ${isWebSocketConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+                <Text style={{ 
+                  color: isWebSocketConnected ? '#16a34a' : '#dc2626',
+                  fontFamily: 'Poppins_600SemiBold'
+                }} className="text-xs">
+                  {isWebSocketConnected ? 'Connected' : 'Disconnected'}
+                </Text>
+              </View>
+            </View>
+            
+            {!isWebSocketConnected && (
+              <View className="mt-3 bg-red-50 p-4 rounded-xl border border-red-200">
+                <Text style={{ 
+                  color: '#dc2626',
+                  fontFamily: 'Poppins_600SemiBold'
+                }} className="text-sm mb-1">
+                  RFID System Offline
+                </Text>
+                <Text style={{ 
+                  color: '#b91c1c',
+                  fontFamily: 'Poppins_400Regular'
+                }} className="text-xs">
+                  Cannot detect RFID cards. Please check your connection and ensure the backend server is running.
+                </Text>
+              </View>
+            )}
+
+            {lastScannedCard && (
+              <View className="mt-3 bg-blue-50 p-4 rounded-xl border border-blue-200">
+                <Text style={{ 
+                  color: '#1d4ed8',
+                  fontFamily: 'Poppins_600SemiBold'
+                }} className="text-sm mb-1">
+                  Last Detected Card
+                </Text>
+                <Text style={{ 
+                  color: '#1e40af',
+                  fontFamily: 'Poppins_500Medium'
+                }} className="text-xs">
+                  UID: {lastScannedCard.uid} • Balance: ${lastScannedCard.deviceBalance}
+                </Text>
+                <Text style={{ 
+                  color: '#64748b',
+                  fontFamily: 'Poppins_400Regular'
+                }} className="text-xs mt-1">
+                  Detected: {new Date(lastScannedCard.timestamp).toLocaleTimeString()}
+                </Text>
+              </View>
+            )}
+          </View>
+
           {/* User Cards Section */}
           {userCards.length > 0 && (
             <View className="mb-8">
@@ -451,7 +558,7 @@ export default function AgentScanScreen() {
                   <View className="items-center justify-center py-8">
                     <Pressable 
                       onPress={handleStartScan}
-                      disabled={isScanning || userCards.length === 0}
+                      disabled={isScanning || !isWebSocketConnected}
                       className="items-center justify-center"
                     >
                       {/* Multiple ripple effects */}
@@ -613,10 +720,10 @@ export default function AgentScanScreen() {
                     </Pressable>
                     
                     <Text style={{ 
-                      color: isScanning ? '#2563eb' : userCards.length === 0 ? '#94a3b8' : '#64748b',
+                      color: isScanning ? '#2563eb' : !isWebSocketConnected ? '#94a3b8' : '#64748b',
                       fontFamily: 'Poppins_700Bold'
                     }} className="text-lg mt-6">
-                      {isScanning ? 'Scanning RFID card...' : userCards.length === 0 ? 'No cards available to scan' : 'Tap to scan RFID card'}
+                      {isScanning ? 'Waiting for RFID card...' : !isWebSocketConnected ? 'RFID system offline' : 'Tap to start RFID scan'}
                     </Text>
                     
                     {isScanning && (
@@ -625,7 +732,7 @@ export default function AgentScanScreen() {
                           color: '#3b82f6',
                           fontFamily: 'Poppins_500Medium'
                         }} className="text-sm animate-pulse mb-2">
-                          Hold card close to device
+                          Place RFID card near the reader
                         </Text>
                         <View className="flex-row items-center">
                           <Radio size={14} color="#3b82f6" className="mr-2" />
@@ -633,7 +740,7 @@ export default function AgentScanScreen() {
                             color: '#64748b',
                             fontFamily: 'Poppins_400Regular'
                           }} className="text-xs">
-                            RFID signal detected
+                            {isWebSocketConnected ? 'Listening for RFID signals...' : 'Connection required'}
                           </Text>
                         </View>
                       </View>
