@@ -419,130 +419,226 @@ export default function SalespersonPay() {
               </View>
             )}
 
-            {/* Detected Card Info - Improved UI */}
+            {/* Detected Card Info - Redesigned with Blue Theme */}
             {detectedCard && status !== 'success' && (
               <View className="mb-4">
                 <View 
                   style={{ 
-                    backgroundColor: detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '#dcfce7' : '#fef2f2',
-                    borderColor: detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '#16a34a' : '#dc2626',
+                    backgroundColor: detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '#eff6ff' : '#fef2f2',
+                    borderColor: detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '#3b82f6' : '#f87171',
                     borderWidth: 2,
-                    borderRadius: 16,
-                    padding: 16,
+                    borderRadius: 20,
+                    padding: 20,
                     position: 'relative',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    shadowColor: '#000',
+                    shadowOffset: { width: 0, height: 4 },
+                    shadowOpacity: 0.1,
+                    shadowRadius: 8,
+                    elevation: 4
                   }}
                 >
-                  {/* Background decoration */}
+                  {/* Gradient Background Decoration */}
                   <View 
                     style={{ 
                       position: 'absolute',
-                      top: -20,
-                      right: -20,
-                      width: 80,
-                      height: 80,
-                      borderRadius: 40,
-                      backgroundColor: detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '#16a34a' : '#dc2626',
-                      opacity: 0.1
+                      top: -30,
+                      right: -30,
+                      width: 100,
+                      height: 100,
+                      borderRadius: 50,
+                      backgroundColor: detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '#3b82f6' : '#f87171',
+                      opacity: 0.08
+                    }}
+                  />
+                  <View 
+                    style={{ 
+                      position: 'absolute',
+                      bottom: -20,
+                      left: -20,
+                      width: 60,
+                      height: 60,
+                      borderRadius: 30,
+                      backgroundColor: detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '#1d4ed8' : '#ef4444',
+                      opacity: 0.05
                     }}
                   />
                   
-                  {/* Card icon and status */}
-                  <View className="flex-row items-center justify-between mb-3">
+                  {/* Header Section */}
+                  <View className="flex-row items-center justify-between mb-5">
                     <View className="flex-row items-center">
                       <View 
                         style={{ 
-                          backgroundColor: detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '#16a34a' : '#dc2626',
-                          width: 40,
-                          height: 40,
-                          borderRadius: 20,
+                          backgroundColor: detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '#3b82f6' : '#f87171',
+                          width: 48,
+                          height: 48,
+                          borderRadius: 24,
                           alignItems: 'center',
                           justifyContent: 'center',
-                          marginRight: 12
+                          marginRight: 16,
+                          shadowColor: detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '#3b82f6' : '#f87171',
+                          shadowOffset: { width: 0, height: 2 },
+                          shadowOpacity: 0.3,
+                          shadowRadius: 4,
+                          elevation: 3
                         }}
                       >
-                        <CreditCard size={20} color="white" />
+                        <CreditCard size={24} color="white" />
                       </View>
                       <View>
                         <Text 
                           style={{ 
-                            color: detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '#15803d' : '#b91c1c',
-                            fontFamily: 'Poppins_700Bold'
-                          }} 
-                          className="text-base"
+                            color: detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '#1e40af' : '#dc2626',
+                            fontSize: 18,
+                            fontWeight: '700'
+                          }}
                         >
                           Card Detected
                         </Text>
                         <Text 
                           style={{ 
-                            color: detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '#16a34a' : '#dc2626',
-                            fontFamily: 'Poppins_500Medium'
-                          }} 
-                          className="text-sm"
+                            color: '#64748b',
+                            fontSize: 14,
+                            fontWeight: '500',
+                            marginTop: 2
+                          }}
                         >
-                          {detectedCard.uid}
+                          ID: {detectedCard.uid}
                         </Text>
                       </View>
                     </View>
                     
                     <Pressable 
                       onPress={() => setDetectedCard(null)}
-                      className="bg-white/80 px-3 py-2 rounded-lg border border-gray-200"
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        paddingHorizontal: 12,
+                        paddingVertical: 8,
+                        borderRadius: 12,
+                        borderWidth: 1,
+                        borderColor: '#e2e8f0'
+                      }}
                     >
-                      <Text style={{ color: '#64748b', fontFamily: 'Poppins_500Medium' }} className="text-xs">
+                      <Text style={{ color: '#64748b', fontSize: 12, fontWeight: '600' }}>
                         Clear
                       </Text>
                     </Pressable>
                   </View>
                   
-                  {/* Balance and payment info */}
-                  <View className="flex-row justify-between items-center">
-                    <View>
-                      <Text style={{ color: '#64748b', fontFamily: 'Poppins_500Medium' }} className="text-xs mb-1">
-                        Card Balance
+                  {/* Balance Information Cards */}
+                  <View className="flex-row justify-between mb-5">
+                    <View 
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                        borderRadius: 16,
+                        padding: 16,
+                        flex: 0.48,
+                        borderWidth: 1,
+                        borderColor: 'rgba(148, 163, 184, 0.2)'
+                      }}
+                    >
+                      <Text style={{ color: '#64748b', fontSize: 12, fontWeight: '500', marginBottom: 4 }}>
+                        Available Balance
                       </Text>
                       <Text 
                         style={{ 
-                          color: detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '#15803d' : '#b91c1c',
-                          fontFamily: 'Poppins_800ExtraBold'
-                        }} 
-                        className="text-xl"
+                          color: detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '#1e40af' : '#dc2626',
+                          fontSize: 24,
+                          fontWeight: '800'
+                        }}
                       >
                         ${detectedCard.deviceBalance.toFixed(2)}
                       </Text>
                     </View>
                     
-                    <View className="items-end">
-                      <Text style={{ color: '#64748b', fontFamily: 'Poppins_500Medium' }} className="text-xs mb-1">
+                    <View 
+                      style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                        borderRadius: 16,
+                        padding: 16,
+                        flex: 0.48,
+                        borderWidth: 1,
+                        borderColor: 'rgba(148, 163, 184, 0.2)'
+                      }}
+                    >
+                      <Text style={{ color: '#64748b', fontSize: 12, fontWeight: '500', marginBottom: 4 }}>
                         Required Amount
                       </Text>
-                      <Text style={{ color: primaryNavy, fontFamily: 'Poppins_800ExtraBold' }} className="text-xl">
+                      <Text style={{ color: primaryNavy, fontSize: 24, fontWeight: '800' }}>
                         ${(getTotalPrice() / 100).toFixed(2)}
                       </Text>
                     </View>
                   </View>
                   
-                  {/* Status indicator */}
-                  <View className="mt-4 pt-4 border-t border-white/50">
+                  {/* Status Indicator */}
+                  <View 
+                    style={{
+                      backgroundColor: detectedCard.deviceBalance >= (getTotalPrice() / 100) 
+                        ? 'rgba(59, 130, 246, 0.1)' 
+                        : 'rgba(248, 113, 113, 0.1)',
+                      borderRadius: 12,
+                      padding: 16,
+                      borderWidth: 1,
+                      borderColor: detectedCard.deviceBalance >= (getTotalPrice() / 100) 
+                        ? 'rgba(59, 130, 246, 0.2)' 
+                        : 'rgba(248, 113, 113, 0.2)'
+                    }}
+                  >
                     {detectedCard.deviceBalance >= (getTotalPrice() / 100) ? (
                       <View className="flex-row items-center">
-                        <CheckCircle2 size={16} color="#16a34a" />
-                        <Text 
-                          style={{ color: '#15803d', fontFamily: 'Poppins_600SemiBold' }} 
-                          className="text-sm ml-2"
+                        <View 
+                          style={{
+                            backgroundColor: '#3b82f6',
+                            width: 24,
+                            height: 24,
+                            borderRadius: 12,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginRight: 12
+                          }}
                         >
-                          ✅ Sufficient balance - Ready for payment
-                        </Text>
+                          <CheckCircle2 size={14} color="white" />
+                        </View>
+                        <View className="flex-1">
+                          <Text 
+                            style={{ color: '#1e40af', fontSize: 16, fontWeight: '600', marginBottom: 2 }}
+                          >
+                            Payment Ready
+                          </Text>
+                          <Text 
+                            style={{ color: '#64748b', fontSize: 13, fontWeight: '500' }}
+                          >
+                            Sufficient balance available for this transaction
+                          </Text>
+                        </View>
                       </View>
                     ) : (
                       <View className="flex-row items-center">
-                        <XCircle size={16} color="#dc2626" />
-                        <Text 
-                          style={{ color: '#b91c1c', fontFamily: 'Poppins_600SemiBold' }} 
-                          className="text-sm ml-2"
+                        <View 
+                          style={{
+                            backgroundColor: '#f87171',
+                            width: 24,
+                            height: 24,
+                            borderRadius: 12,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            marginRight: 12
+                          }}
                         >
-                          ❌ Insufficient balance - Need ${((getTotalPrice() / 100) - detectedCard.deviceBalance).toFixed(2)} more
-                        </Text>
+                          <XCircle size={14} color="white" />
+                        </View>
+                        <View className="flex-1">
+                          <Text 
+                            style={{ color: '#dc2626', fontSize: 16, fontWeight: '600', marginBottom: 2 }}
+                          >
+                            Insufficient Balance
+                          </Text>
+                          <Text 
+                            style={{ color: '#64748b', fontSize: 13, fontWeight: '500' }}
+                          >
+                            Need ${((getTotalPrice() / 100) - detectedCard.deviceBalance).toFixed(2)} more to complete payment
+                          </Text>
+                        </View>
                       </View>
                     )}
                   </View>
@@ -752,31 +848,118 @@ export default function SalespersonPay() {
 
                     {status === 'idle' && detectedCard && (
                       <View className="items-center">
-                        <View className="bg-green-50 border border-green-200 rounded-2xl p-6 mb-6 w-full">
-                          <View className="flex-row items-center justify-center mb-4">
-                            <View className="w-3 h-3 bg-green-500 rounded-full mr-3" />
-                            <Text className="text-green-700 font-bold text-lg">Card Detected</Text>
+                        <View 
+                          style={{
+                            backgroundColor: '#f8fafc',
+                            borderWidth: 2,
+                            borderColor: '#3b82f6',
+                            borderRadius: 20,
+                            padding: 24,
+                            marginBottom: 24,
+                            width: '100%',
+                            shadowColor: '#3b82f6',
+                            shadowOffset: { width: 0, height: 4 },
+                            shadowOpacity: 0.1,
+                            shadowRadius: 12,
+                            elevation: 6
+                          }}
+                        >
+                          <View className="flex-row items-center justify-center mb-6">
+                            <View 
+                              style={{
+                                width: 12,
+                                height: 12,
+                                backgroundColor: '#3b82f6',
+                                borderRadius: 6,
+                                marginRight: 12,
+                                shadowColor: '#3b82f6',
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowOpacity: 0.4,
+                                shadowRadius: 4
+                              }}
+                            />
+                            <Text style={{ color: '#1e40af', fontSize: 20, fontWeight: '700' }}>
+                              Card Ready for Payment
+                            </Text>
                           </View>
                           
-                          <View className="space-y-3">
-                            <View className="flex-row justify-between">
-                              <Text className="text-gray-600 font-medium">Card ID:</Text>
-                              <Text className="text-green-700 font-bold">{detectedCard.uid}</Text>
+                          <View style={{ gap: 16 }}>
+                            <View 
+                              style={{
+                                backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                                borderRadius: 12,
+                                padding: 16,
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                alignItems: 'center'
+                              }}
+                            >
+                              <Text style={{ color: '#64748b', fontSize: 15, fontWeight: '500' }}>Card ID:</Text>
+                              <Text style={{ color: '#1e40af', fontSize: 15, fontWeight: '700' }}>{detectedCard.uid}</Text>
                             </View>
-                            <View className="flex-row justify-between">
-                              <Text className="text-gray-600 font-medium">Available:</Text>
-                              <Text className="text-green-700 font-bold">${detectedCard.deviceBalance.toFixed(2)}</Text>
+                            
+                            <View 
+                              style={{
+                                backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                                borderRadius: 12,
+                                padding: 16,
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                alignItems: 'center'
+                              }}
+                            >
+                              <Text style={{ color: '#64748b', fontSize: 15, fontWeight: '500' }}>Available:</Text>
+                              <Text style={{ color: '#1e40af', fontSize: 15, fontWeight: '700' }}>${detectedCard.deviceBalance.toFixed(2)}</Text>
                             </View>
-                            <View className="flex-row justify-between">
-                              <Text className="text-gray-600 font-medium">Required:</Text>
-                              <Text style={{ color: primaryNavy }} className="font-bold">${(getTotalPrice() / 100).toFixed(2)}</Text>
+                            
+                            <View 
+                              style={{
+                                backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                                borderRadius: 12,
+                                padding: 16,
+                                flexDirection: 'row',
+                                justifyContent: 'space-between',
+                                alignItems: 'center'
+                              }}
+                            >
+                              <Text style={{ color: '#64748b', fontSize: 15, fontWeight: '500' }}>Required:</Text>
+                              <Text style={{ color: primaryNavy, fontSize: 15, fontWeight: '700' }}>${(getTotalPrice() / 100).toFixed(2)}</Text>
                             </View>
-                            <View className="border-t border-green-200 pt-3">
-                              <View className="flex-row justify-between">
-                                <Text className="text-gray-600 font-medium">Status:</Text>
-                                <Text className={`font-bold ${detectedCard.deviceBalance >= (getTotalPrice() / 100) ? 'text-green-600' : 'text-red-600'}`}>
-                                  {detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '✅ Sufficient' : '❌ Insufficient'}
-                                </Text>
+                            
+                            <View 
+                              style={{
+                                backgroundColor: detectedCard.deviceBalance >= (getTotalPrice() / 100) 
+                                  ? 'rgba(59, 130, 246, 0.1)' 
+                                  : 'rgba(248, 113, 113, 0.1)',
+                                borderRadius: 12,
+                                padding: 16,
+                                borderTopWidth: 1,
+                                borderTopColor: 'rgba(148, 163, 184, 0.2)',
+                                marginTop: 8
+                              }}
+                            >
+                              <View className="flex-row justify-between items-center">
+                                <Text style={{ color: '#64748b', fontSize: 15, fontWeight: '500' }}>Status:</Text>
+                                <View className="flex-row items-center">
+                                  <View 
+                                    style={{
+                                      width: 8,
+                                      height: 8,
+                                      borderRadius: 4,
+                                      backgroundColor: detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '#3b82f6' : '#f87171',
+                                      marginRight: 8
+                                    }}
+                                  />
+                                  <Text 
+                                    style={{ 
+                                      color: detectedCard.deviceBalance >= (getTotalPrice() / 100) ? '#1e40af' : '#dc2626',
+                                      fontSize: 15,
+                                      fontWeight: '700'
+                                    }}
+                                  >
+                                    {detectedCard.deviceBalance >= (getTotalPrice() / 100) ? 'Ready to Pay' : 'Insufficient'}
+                                  </Text>
+                                </View>
                               </View>
                             </View>
                           </View>
@@ -870,14 +1053,29 @@ export default function SalespersonPay() {
             {status === 'success' && (
               <View className="items-center py-8">
                 <Animated.View style={[animatedSuccessStyle]}>
-                  <View className="bg-green-500 w-20 h-20 rounded-full items-center justify-center mb-4">
+                  <View 
+                    style={{
+                      backgroundColor: '#3b82f6',
+                      width: 80,
+                      height: 80,
+                      borderRadius: 40,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginBottom: 16,
+                      shadowColor: '#3b82f6',
+                      shadowOffset: { width: 0, height: 4 },
+                      shadowOpacity: 0.3,
+                      shadowRadius: 8,
+                      elevation: 6
+                    }}
+                  >
                     <CheckCircle2 size={40} color="white" />
                   </View>
                 </Animated.View>
-                <Text style={{ color: '#10b981' }} className="text-xl font-bold mb-2">
+                <Text style={{ color: '#1e40af', fontSize: 24, fontWeight: '700', marginBottom: 8 }}>
                   Payment Successful!
                 </Text>
-                <Text className="text-gray-500 text-center">
+                <Text style={{ color: '#64748b', textAlign: 'center', fontSize: 16 }}>
                   Your payment has been processed successfully.{'\n'}
                   Receipt details are shown below.
                 </Text>
@@ -888,9 +1086,24 @@ export default function SalespersonPay() {
 
         {/* Receipt Section - Only show after successful payment */}
         {status === 'success' && (
-          <View className="mx-6 mt-4 bg-white rounded-2xl p-6 shadow-sm border border-green-200">
+          <View className="mx-6 mt-4 bg-white rounded-2xl p-6 shadow-sm border-2" style={{ borderColor: '#3b82f6' }}>
             <View className="items-center mb-4">
-              <View className="bg-green-500 w-12 h-12 rounded-full items-center justify-center mb-3">
+              <View 
+                style={{
+                  backgroundColor: '#3b82f6',
+                  width: 48,
+                  height: 48,
+                  borderRadius: 24,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 12,
+                  shadowColor: '#3b82f6',
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.3,
+                  shadowRadius: 4,
+                  elevation: 3
+                }}
+              >
                 <CheckCircle2 size={24} color="white" />
               </View>
               <Text style={{ color: primaryNavy }} className="text-lg font-bold">Payment Receipt</Text>
@@ -1101,7 +1314,8 @@ Payment Method: ${receiptData.paymentMethod}
                   clearCart();
                   router.push('/(main)/salesperson/products');
                 }}
-                className="bg-green-500 py-4 rounded-xl flex-row items-center justify-center"
+                style={{ backgroundColor: '#3b82f6' }}
+                className="py-4 rounded-xl flex-row items-center justify-center"
               >
                 <ShoppingCart size={20} color="white" />
                 <Text className="text-white ml-2 font-bold">Start New Transaction</Text>
