@@ -241,18 +241,16 @@ async function getUserTransactionHistory(userId, limit = 10) {
             .find({ userId: objectId })
             .toArray();
 
-        if (userCards.length === 0) {
-            return [];
-        }
-
         const cardUids = userCards.map(uc => uc.cardUid);
 
-        // Get transactions for all user's cards
+        // Get transactions for:
+        // 1. Direct user transactions (transactions made by this user)
+        // 2. Card-based transactions for user's assigned cards
         const transactions = await db.collection('transactions')
             .find({
                 $or: [
-                    { userId: objectId }, // Direct user transactions
-                    { cardUid: { $in: cardUids } } // Card-based transactions
+                    { userId: objectId }, // All transactions made by this user (regardless of card ownership)
+                    { cardUid: { $in: cardUids } } // Transactions on cards owned by user
                 ]
             })
             .sort({ createdAt: -1 })
