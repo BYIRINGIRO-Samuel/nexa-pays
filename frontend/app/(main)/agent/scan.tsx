@@ -279,7 +279,7 @@ export default function AgentScanScreen() {
   };
 
   const NexaCard = () => {
-    // Priority: 1. Last scanned card, 2. Scan result, 3. First user card, 4. No card
+    // Priority: 1. Last scanned card, 2. Scan result, 3. No card (don't show user cards)
     let displayCard = null;
     let displayBalance = 0;
     let cardSource = 'none';
@@ -292,11 +292,8 @@ export default function AgentScanScreen() {
       displayCard = { cardUid: scanResult.id };
       displayBalance = scanResult.balance;
       cardSource = 'result';
-    } else if (userCards.length > 0) {
-      displayCard = userCards[0];
-      displayBalance = displayCard.balance / 100; // Convert from cents to dollars
-      cardSource = 'user';
     }
+    // Removed: Don't fall back to user cards - show "No Card" when cleared
     
     return (
       <View className="px-4 mt-2">
@@ -324,7 +321,7 @@ export default function AgentScanScreen() {
           )}
           
           <View className="flex-row justify-between items-start mb-6">
-            <View style={{ backgroundColor: '#FFD700', width: 50, height: 38, borderRadius: 8, opacity: 0.9, position: 'relative', overflow: 'hidden' }}>
+            <View style={{ backgroundColor: '#FFD700', width: 50, height: 38, borderRadius: 8, opacity: displayCard ? 0.9 : 0.5, position: 'relative', overflow: 'hidden' }}>
                <View className="absolute inset-0 border border-black/10 opacity-20" />
                <View className="absolute top-1/2 w-full h-[1px] bg-black/10" />
                <View className="absolute left-1/2 h-full w-[1px] bg-black/10" />
