@@ -93,62 +93,20 @@ export default function AgentScanScreen() {
             console.log('📱 Real RFID card detected:', data);
             setLastScannedCard(data);
             
-            // Check if this card is already assigned to the user
-            const isCardAssigned = userCards.some(card => card.cardUid === data.uid);
-            
-            // If card is not assigned, try to assign it automatically
-            if (!isCardAssigned) {
-              try {
-                console.log('🔗 Auto-assigning detected card to user:', data.uid);
-                await apiService.assignCardToUser(data.uid);
-                
-                // Reload user cards to include the newly assigned card
-                const cardsResponse = await apiService.getUserCards();
-                if (cardsResponse.success) {
-                  setUserCards(cardsResponse.cards || []);
-                  console.log('✅ Card assigned and user cards reloaded');
-                }
-              } catch (assignError) {
-                console.error('Failed to assign card:', assignError);
-                // Continue with the detection even if assignment fails
-              }
+            // Use the balance from MQTT data directly (no backend call needed)
+            // Auto-stop scanning when card is detected
+            if (isScanning) {
+              setIsScanning(false);
+              
+              // Update scan result with real card data from MQTT
+              setScanResult({
+                id: data.uid,
+                name: 'Card Holder', // Generic name since card isn't user-specific
+                balance: data.deviceBalance
+              });
             }
             
-            // Get fresh balance from backend for the detected card
-            try {
-              const balanceResponse = await apiService.getBalance(data.uid);
-              if (balanceResponse.success) {
-                // Update the card data with fresh balance
-                const updatedCardData = {
-                  ...data,
-                  deviceBalance: balanceResponse.balance
-                };
-                setLastScannedCard(updatedCardData);
-                
-                // Auto-stop scanning when card is detected
-                if (isScanning) {
-                  setIsScanning(false);
-                  
-                  // Update scan result with real card data and fresh balance
-                  setScanResult({
-                    id: data.uid,
-                    name: currentUser?.username || 'Card Holder',
-                    balance: balanceResponse.balance
-                  });
-                }
-              }
-            } catch (error) {
-              console.error('Failed to get fresh balance:', error);
-              // Still show the card with device balance if API fails
-              if (isScanning) {
-                setIsScanning(false);
-                setScanResult({
-                  id: data.uid,
-                  name: currentUser?.username || 'Card Holder',
-                  balance: data.deviceBalance
-                });
-              }
-            }
+            console.log('✅ RFID card processed with MQTT balance:', data.deviceBalance);
           };
 
           webSocketService.on('card-scanned', handleCardScanned);
@@ -528,14 +486,13 @@ export default function AgentScanScreen() {
                 onPress={() => router.push('/(main)/agent/topup')}
                 className="flex-1 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-4 mr-2 shadow-lg"
                 style={{ backgroundColor: primaryNavy }}
-                disabled={userCards.length === 0}
               >
                 <View className="bg-white/20 p-2 rounded-xl mb-3 self-start">
                   <Zap size={20} color="white" />
                 </View>
                 <Text style={{ color: 'white', fontFamily: 'Poppins_700Bold' }} className="text-sm">Top-up</Text>
                 <Text style={{ color: 'rgba(255,255,255,0.8)', fontFamily: 'Poppins_500Medium' }} className="text-xs">
-                  {userCards.length === 0 ? 'No cards' : 'Add funds'}
+                  Add funds
                 </Text>
               </Pressable>
 
