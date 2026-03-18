@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router';
 import { Plus, Minus, Search, ShoppingCart, ArrowLeft, Filter, Grid, List, Heart, Package, Trash2 } from 'lucide-react-native';
 import { SalespersonBottomNav } from '../../../components/SalespersonBottomNav';
+import { SalespersonTopbar } from '../../../components/SalespersonTopbar';
 import { StorageService } from '../../../services/storage';
-import { apiService } from '../../../services/api';
+import { User, apiService } from '../../../services/api';
 import { useCart } from '../../../contexts/CartContext';
 
 interface Product {
@@ -33,6 +34,8 @@ export default function SalespersonProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [notificationCount, setNotificationCount] = useState(0);
   
   // Cart context
   const { items, addToCart, updateQuantity, removeFromCart, getTotalItems, getTotalPrice } = useCart();
@@ -42,6 +45,9 @@ export default function SalespersonProducts() {
     const loadProducts = async () => {
       try {
         setIsLoading(true);
+        const user = await StorageService.getUser();
+        setCurrentUser(user);
+        
         const token = await StorageService.getToken();
         if (token) {
           apiService.setToken(token);
@@ -49,6 +55,12 @@ export default function SalespersonProducts() {
           if (response.success) {
             setProducts(response.products || []);
             console.log('📦 Products loaded:', response.products);
+          }
+          
+          // Load notification count
+          const notifCountResponse = await apiService.getUnreadNotificationCount();
+          if (notifCountResponse.success) {
+            setNotificationCount(notifCountResponse.count || 0);
           }
         }
       } catch (error) {
@@ -108,22 +120,12 @@ export default function SalespersonProducts() {
 
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
-      {/* Header */}
-      <View className="flex-row items-center justify-between px-6 py-4 bg-white">
-        <Pressable onPress={() => router.back()} className="w-10 h-10 items-center justify-center">
-          <ArrowLeft size={24} color={primaryNavy} />
-        </Pressable>
-        <Text style={{ color: primaryNavy }} className="text-lg font-bold">Products</Text>
-        <View className="flex-row">
-          <Pressable 
-            onPress={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-            className="mr-3"
-          >
-            {viewMode === 'grid' ? <List size={24} color={primaryNavy} /> : <Grid size={24} color={primaryNavy} />}
-          </Pressable>
-          <Heart size={24} color={primaryNavy} />
-        </View>
-      </View>
+      <SalespersonTopbar 
+        name={currentUser?.username || 'Salesperson'} 
+        role={currentUser?.role === 'admin' ? 'Nexa Agent' : 'Nexa Salesperson'} 
+        primaryNavy={primaryNavy}
+        notificationCount={notificationCount}
+      />
 
       {/* Search and Filter Section */}
       <View className="px-6 py-4 bg-white border-b border-gray-100">
